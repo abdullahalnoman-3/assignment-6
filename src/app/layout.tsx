@@ -4,6 +4,7 @@ import "./globals.css";
 import { WorkoutProvider } from "@/context/WorkoutContext";
 import { Toaster } from "react-hot-toast";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const oswald = Oswald({ subsets: ["latin"], variable: "--font-oswald" });
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {children}
             
           </main>
+          <Footer />
           <Toaster position="bottom-right" toastOptions={{ style: { background: '#333', color: '#fff' } }} />
         </WorkoutProvider>
       </body>
