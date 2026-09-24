@@ -8,9 +8,11 @@ export default function Navbar() {
 
   return (
     <nav className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-[#333] bg-[#121212] w-full">
-      <Link href="/" className="text-white font-oswald text-xl font-bold uppercase tracking-wider text-[#ccff00]">
+      <Link href="/" className="flex items-center gap-2 text-white font-oswald text-xl font-bold uppercase tracking-wider">
+        <img src="/logo.png" alt="FitLog Logo" className="h-6 w-6 object-contain" />
         FITLOG
       </Link>
+
       <div className="flex items-center gap-6">
         <Link href="/my-plan" className="flex items-center gap-2 text-sm font-medium hover:text-[#ccff00] transition">
           Plan <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#ccff00] text-black">{plan?.length || 0}</span>

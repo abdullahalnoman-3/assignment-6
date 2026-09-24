@@ -1,12 +1,24 @@
 "use client";
-import { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
-const WorkoutContext = createContext();
+type Workout = {
+  id: string | number;
+  [key: string]: any;
+};
 
-export function WorkoutProvider({ children }) {
-  const [plan, setPlan] = useState([]);
-  const [saved, setSaved] = useState([]);
+type WorkoutContextType = {
+  plan: Workout[];
+  saved: Workout[];
+  addToPlan: (workout: Workout) => void;
+  addToSaved: (workout: Workout) => void;
+};
+
+const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
+
+export function WorkoutProvider({ children }: { children: React.ReactNode }) {
+  const [plan, setPlan] = useState<Workout[]>([]);
+  const [saved, setSaved] = useState<Workout[]>([]);
 
   useEffect(() => {
     const savedPlan = localStorage.getItem("fitlog_plan");
@@ -15,7 +27,7 @@ export function WorkoutProvider({ children }) {
     if (savedList) setSaved(JSON.parse(savedList));
   }, []);
 
-  const addToPlan = (workout) => {
+  const addToPlan = (workout: Workout) => {
     if (!plan.find(w => w.id === workout.id)) {
       const newPlan = [...plan, workout];
       setPlan(newPlan);
@@ -26,7 +38,7 @@ export function WorkoutProvider({ children }) {
     }
   };
 
-  const addToSaved = (workout) => {
+  const addToSaved = (workout: Workout) => {
     if (!saved.find(w => w.id === workout.id)) {
       const newSaved = [...saved, workout];
       setSaved(newSaved);
@@ -44,4 +56,10 @@ export function WorkoutProvider({ children }) {
   );
 }
 
-export const useWorkout = () => useContext(WorkoutContext);
+export const useWorkout = () => {
+  const context = useContext(WorkoutContext);
+  if (context === undefined) {
+    throw new Error("useWorkout must be used within a WorkoutProvider");
+  }
+  return context;
+};
