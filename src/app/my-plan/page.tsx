@@ -1,13 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import { useWorkout } from "@/context/WorkoutContext";
+import { useState, useEffect } from "react";
+import { useWorkout, Workout } from "@/context/WorkoutContext";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Check, X, Clock, Flame, Star, ChevronDown } from "lucide-react";
 
 export default function MyPlan() {
-  const [activeTab, setActiveTab] = useState("plan"); // "plan" or "saved"
+  const searchParams = useSearchParams();
+  const tabQuery = searchParams.get("tab");
+
+  const [activeTab, setActiveTab] = useState("plan"); 
   const [sortBy, setSortBy] = useState("Duration");
+
+  useEffect(() => {
+    if (tabQuery === "saved") {
+      setActiveTab("saved");
+    } else {
+      setActiveTab("plan");
+    }
+  }, [tabQuery]);
 
   const { plan, saved, removeFromPlan, markAsDone, removeFromSaved } = useWorkout();
 
@@ -15,10 +27,10 @@ export default function MyPlan() {
   const currentList = activeTab === "plan" ? plan : saved;
 
   const totalExercises = currentList?.length || 0;
-  const totalMinutes = currentList?.reduce((acc: number, w: any) => acc + (Number(w.duration) || 0), 0) || 0;
-  const totalCalories = currentList?.reduce((acc: number, w: any) => acc + (Number(w.caloriesBurned) || 0), 0) || 0;
+  const totalMinutes = currentList?.reduce((acc: number, w: Workout) => acc + (Number(w.duration) || 0), 0) || 0;
+  const totalCalories = currentList?.reduce((acc: number, w: Workout) => acc + (Number(w.caloriesBurned) || 0), 0) || 0;
 
-  const sortedList = [...(currentList || [])].sort((a, b) => {
+  const sortedList = [...(currentList || [])].sort((a: Workout, b: Workout) => {
     if (sortBy === "Duration") return (Number(b.duration) || 0) - (Number(a.duration) || 0);
     if (sortBy === "Calories") return (Number(b.caloriesBurned) || 0) - (Number(a.caloriesBurned) || 0);
     if (sortBy === "Rating") return (Number(b.rating) || 0) - (Number(a.rating) || 0);
@@ -93,9 +105,10 @@ export default function MyPlan() {
             </Link>
           </div>
         ) : (
-          sortedList.map((workout: any) => (
+          sortedList.map((workout: Workout) => (
             <div key={workout.id} className="bg-[#1e1e1e] border border-[#333] rounded-xl flex items-center p-4 gap-6 group hover:border-[#555] transition">
-              <div className="w-32 h-20 bg-[#2a2a2a] rounded-lg overflow-hidden shrink-0 hidden sm:block">
+              <div className="w-32 h-20 bg-[#2a2a2a] rounded-lg overflow-hidden shrink-0 hidden sm:block relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
                   src={workout.image || workout.thumbnail || "https://placehold.co/400x300/2a2a2a/ffffff?text=Workout"} 
                   alt={workout.title || workout.name} 

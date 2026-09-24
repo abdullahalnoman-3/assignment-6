@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Clock, Flame, Star, ChevronDown } from "lucide-react";
+import Image from "next/image";
+import { Clock, Flame, Star } from "lucide-react";
+import { Workout } from "@/context/WorkoutContext";
 
 export default function Home() {
-  const [workouts, setWorkouts] = useState([]);
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,7 +26,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="mx-auto max-w-6xl w-full px-4 sm:px-6 mt-10 mb-20">
+      <section className="w-full px-4 sm:px-6 mt-10 mb-20">
         <div className="bg-[#1a1a1a] rounded-2xl flex flex-col md:flex-row items-center justify-between p-6 sm:p-8 md:p-16 relative overflow-hidden">
           <div className="z-10 max-w-lg">
             <p className="text-[#ccff00] text-sm font-bold tracking-widest uppercase mb-4">
@@ -46,14 +48,14 @@ export default function Home() {
           </div>
           {/* Decorative Image */}
           <div className="mt-10 md:mt-0 relative right-0 w-64 h-64 md:w-80 md:h-80 md:absolute md:right-10 flex items-center justify-center">
-            {/* Student might use a simple placeholder image or any static image if they don't have the 3d character */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/banner.png" alt="Gym machine" className="object-contain h-full w-full" onError={(e) => { e.currentTarget.style.display='none' }} />
           </div>
         </div>
       </section>
 
       {/* Library Section */}
-      <section id="library" className="mx-auto max-w-6xl w-full px-4 sm:px-6 mb-20 scroll-mt-10">
+      <section id="library" className="w-full px-4 sm:px-6 mb-20 scroll-mt-10">
         <div className="mb-8">
           <h2 className="font-oswald text-3xl font-bold uppercase mb-2">The Library</h2>
           <p className="text-gray-500">Twelve lifts covering every major muscle group.</p>
@@ -61,18 +63,21 @@ export default function Home() {
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="Loading..." className="h-16 w-16 animate-pulse object-contain" />
             <p className="mt-4 text-[#ccff00] font-bold tracking-widest uppercase text-sm">Loading...</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {workouts.map((workout: any) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+            {workouts.map((workout: Workout) => (
               <Link href={`/workout/${workout.id}`} key={workout.id} className="bg-[#1e1e1e] rounded-xl overflow-hidden hover:ring-2 ring-[#ccff00] transition group cursor-pointer border border-[#333]">
-                <div className="h-48 overflow-hidden bg-[#2a2a2a]">
-                  <img 
+                <div className="h-48 overflow-hidden bg-[#2a2a2a] relative">
+                  <Image 
                     src={workout.image || workout.thumbnail || "https://placehold.co/600x400/2a2a2a/ffffff?text=Workout"} 
-                    alt={workout.title || workout.name} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                    alt={workout.title || workout.name || "Workout Image"} 
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-cover group-hover:scale-105 transition duration-500"
                   />
                 </div>
                 <div className="p-5">

@@ -12,7 +12,10 @@ export default function WorkoutDetail() {
   const [loading, setLoading] = useState(true);
   
   // @ts-ignore
-  const { addToPlan, addToSaved } = useWorkout();
+  const { addToPlan, addToSaved, plan, saved } = useWorkout();
+
+  const isAddedToPlan = plan?.some((w: any) => w.id === workout?.id) || false;
+  const isAddedToSaved = saved?.some((w: any) => w.id === workout?.id) || false;
 
   useEffect(() => {
     fetch(`https://api.abcz.workers.dev/api/fitlog/${id}`)
@@ -41,7 +44,7 @@ export default function WorkoutDetail() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10">
+    <div className="w-full px-6 py-10">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Left Side - Image */}
         <div className="rounded-2xl overflow-hidden bg-[#1e1e1e] flex items-center justify-center">
@@ -112,18 +115,20 @@ export default function WorkoutDetail() {
 
           <div className="flex flex-col sm:flex-row gap-4">
             <button 
-              onClick={() => addToPlan(workout)}
-              className="flex-1 bg-[#ccff00] text-black font-bold py-3 px-6 rounded-md flex justify-center items-center gap-2 hover:bg-[#aacc00] transition"
+              onClick={() => { if (!isAddedToPlan && !isAddedToSaved) addToPlan(workout); }}
+              disabled={isAddedToPlan || isAddedToSaved}
+              className={`flex-1 font-bold py-3 px-6 rounded-md flex justify-center items-center gap-2 transition ${isAddedToPlan || isAddedToSaved ? "bg-gray-600 text-gray-400 cursor-not-allowed" : "bg-[#ccff00] text-black hover:bg-[#aacc00]"}`}
             >
               <CalendarPlus size={20} />
-              Add to today's plan
+              {isAddedToPlan ? "Added to Plan" : "Add to today's plan"}
             </button>
             <button 
-              onClick={() => addToSaved(workout)}
-              className="flex-1 bg-transparent border border-gray-500 text-white font-bold py-3 px-6 rounded-md flex justify-center items-center gap-2 hover:bg-[#2a2a2a] transition"
+              onClick={() => { if (!isAddedToPlan && !isAddedToSaved) addToSaved(workout); }}
+              disabled={isAddedToPlan || isAddedToSaved}
+              className={`flex-1 border font-bold py-3 px-6 rounded-md flex justify-center items-center gap-2 transition ${isAddedToPlan || isAddedToSaved ? "bg-[#1a1a1a] border-[#333] text-gray-500 cursor-not-allowed" : "bg-transparent border-gray-500 text-white hover:bg-[#2a2a2a]"}`}
             >
               <Bookmark size={20} />
-              Save for later
+              {isAddedToSaved ? "Saved" : "Save for later"}
             </button>
           </div>
         </div>
