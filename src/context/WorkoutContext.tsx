@@ -1,65 +1,85 @@
 "use client";
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
-type Workout = {
-  id: string | number;
-  [key: string]: any;
-};
+const WorkoutContext = createContext(null);
 
-type WorkoutContextType = {
-  plan: Workout[];
-  saved: Workout[];
-  addToPlan: (workout: Workout) => void;
-  addToSaved: (workout: Workout) => void;
-};
+export const WorkoutProvider = ({ children }) => {
+  const [plan, setPlan] = useState([]);
+  const [saved, setSaved] = useState([]);
 
-const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
-
-export function WorkoutProvider({ children }: { children: React.ReactNode }) {
-  const [plan, setPlan] = useState<Workout[]>([]);
-  const [saved, setSaved] = useState<Workout[]>([]);
-
+  // Load from localStorage on first render
   useEffect(() => {
     const savedPlan = localStorage.getItem("fitlog_plan");
-    const savedList = localStorage.getItem("fitlog_saved");
+    const savedSaved = localStorage.getItem("fitlog_saved");
     if (savedPlan) setPlan(JSON.parse(savedPlan));
-    if (savedList) setSaved(JSON.parse(savedList));
+    if (savedSaved) setSaved(JSON.parse(savedSaved));
   }, []);
 
-  const addToPlan = (workout: Workout) => {
-    if (!plan.find(w => w.id === workout.id)) {
-      const newPlan = [...plan, workout];
-      setPlan(newPlan);
-      localStorage.setItem("fitlog_plan", JSON.stringify(newPlan));
+  // Save to localStorage whenever plan or saved changes
+  useEffect(() => {
+    localStorage.setItem("fitlog_plan", JSON.stringify(plan));
+  }, [plan]);
+
+  useEffect(() => {
+    localStorage.setItem("fitlog_saved", JSON.stringify(saved));
+  }, [saved]);
+
+  const addToPlan = (workout) => {
+    if (plan.length >= 5) {
+      toast.error("You can only have 5 lifts in today's plan.");
+      return;
+    }
+    const exists = plan.find((w) => w.id === workout.id);
+    if (!exists) {
+      setPlan([...plan, workout]);
       toast.success("Added to today's plan!");
     } else {
-      toast.error("Already in plan!");
+      toast.error("Already in today's plan!");
     }
   };
 
-  const addToSaved = (workout: Workout) => {
-    if (!saved.find(w => w.id === workout.id)) {
-      const newSaved = [...saved, workout];
-      setSaved(newSaved);
-      localStorage.setItem("fitlog_saved", JSON.stringify(newSaved));
+  const removeFromPlan = (id) => {
+    setPlan(plan.filter((w) => w.id !== id));
+    toast.success("Removed from plan.");
+  };
+
+  const markAsDone = (id) => {
+    removeFromPlan(id);
+    toast.success("Workout marked as done!");
+  };
+
+  const addToSaved = (workout) => {
+    const exists = saved.find((w) => w.id === workout.id);
+    if (!exists) {
+      setSaved([...saved, workout]);
       toast.success("Saved for later!");
     } else {
       toast.error("Already saved!");
     }
   };
 
+  const removeFromSaved = (id) => {
+    setSaved(saved.filter((w) => w.id !== id));
+    toast.success("Removed from saved.");
+  };
+
   return (
-    <WorkoutContext.Provider value={{ plan, saved, addToPlan, addToSaved }}>
+    <WorkoutContext.Provider
+      value={{
+        plan,
+        saved,
+        addToPlan,
+        removeFromPlan,
+        markAsDone,
+        addToSaved,
+        removeFromSaved,
+      }}
+    >
       {children}
     </WorkoutContext.Provider>
   );
-}
-
-export const useWorkout = () => {
-  const context = useContext(WorkoutContext);
-  if (context === undefined) {
-    throw new Error("useWorkout must be used within a WorkoutProvider");
-  }
-  return context;
 };
+
+export const useWorkout = () => useContext(WorkoutContext);
