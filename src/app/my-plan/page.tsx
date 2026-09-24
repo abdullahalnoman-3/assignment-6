@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useWorkout, Workout } from "@/context/WorkoutContext";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Check, X, Clock, Flame, Star, ChevronDown } from "lucide-react";
 
-export default function MyPlan() {
+function MyPlanContent() {
   const searchParams = useSearchParams();
   const tabQuery = searchParams.get("tab");
 
@@ -38,7 +38,7 @@ export default function MyPlan() {
   });
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 w-full">
+    <div className="w-full px-6 py-10">
       <div className="mb-8">
         <h1 className="font-oswald text-4xl font-bold uppercase mb-2">MY PLAN</h1>
         <p className="text-gray-400">Cap of five lifts for today. Finish them, then load more.</p>
@@ -153,5 +153,13 @@ export default function MyPlan() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function MyPlan() {
+  return (
+    <Suspense fallback={<div className="flex justify-center py-20 text-[#ccff00] font-bold tracking-widest uppercase">Loading plan...</div>}>
+      <MyPlanContent />
+    </Suspense>
   );
 }

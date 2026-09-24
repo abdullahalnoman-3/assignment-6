@@ -42,7 +42,7 @@ export default function Navbar() {
             {plan?.length || 0}
           </span>
         </Link>
-        <Link href="/my-plan" className="flex items-center gap-2 text-gray-300 hover:text-white transition">
+        <Link href="/my-plan?tab=saved" className="flex items-center gap-2 text-gray-300 hover:text-white transition">
           Saved 
           <span className="flex items-center justify-center w-5 h-5 rounded-full border border-gray-500 text-gray-300">
             {saved?.length || 0}
